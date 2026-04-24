@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Chess Tournament</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #3d2817;
+            --wood-medium: #5c3a1e;
+            --wood-light: #8b5a2b;
+            --wood-cream: #d4a574;
+            --wood-pale: #f5e6d3;
+            --cream: #faf6f0;
+            --white: #ffffff;
+            --text-dark: #2c1810;
+            --text-muted: #8b7355;
+            --gold: #c9a227;
+            --gold-light: #e8d5a3;
+            --board-light: #eeeed2;
+            --board-dark: #769656;
+            --accent: #a0522d;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text-dark); overflow-x: hidden; }
+        nav { position: fixed; top: 0; width: 100%; background: linear-gradient(135deg, var(--wood-dark), var(--wood-medium)); z-index: 1000; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--wood-cream); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; color: var(--wood-cream); display: flex; align-items: center; gap: 0.5rem; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { color: var(--wood-pale); text-decoration: none; font-weight: 500; transition: color 0.3s; position: relative; }
+        .nav-links a:hover { color: var(--wood-cream); }
+        .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: var(--wood-cream); transition: width 0.3s; }
+        .nav-links a:hover::after { width: 100%; }
+        .hero { min-height: 100vh; background: linear-gradient(135deg, rgba(61, 40, 23, 0.92) 0%, rgba(92, 58, 30, 0.88) 100%), url('https://images.unsplash.com/photo-1529699211952-734e80c4d42b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding-top: 80px; }
+        .hero-content { text-align: center; z-index: 2; padding: 2rem; }
+        .hero-badge { display: inline-block; background: rgba(212, 165, 116, 0.2); border: 1px solid var(--wood-cream); color: var(--wood-cream); padding: 0.5rem 1.5rem; border-radius: 50px; font-size: 0.9rem; font-weight: 600; margin-bottom: 2rem; letter-spacing: 2px; text-transform: uppercase; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(3rem, 8vw, 6rem); font-weight: 900; color: var(--wood-pale); margin-bottom: 1rem; line-height: 1.1; text-shadow: 2px 2px 8px rgba(0,0,0,0.5); }
+        .hero h1 span { color: var(--wood-cream); }
+        .hero-subtitle { font-size: 1.3rem; color: rgba(245, 230, 211, 0.9); margin-bottom: 2rem; font-weight: 300; }
+        .hero-dates { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem; }
+        .date-card { background: rgba(255,255,255,0.08); border: 1px solid rgba(212, 165, 116, 0.4); border-radius: 16px; padding: 1.5rem 2rem; text-align: center; backdrop-filter: blur(10px); transition: transform 0.3s, border-color 0.3s; }
+        .date-card:hover { transform: translateY(-5px); border-color: var(--wood-cream); background: rgba(255,255,255,0.12); }
+        .date-card .day { font-size: 2.5rem; font-weight: 900; color: var(--wood-cream); font-family: 'Playfair Display', serif; }
+        .date-card .label { color: rgba(245, 230, 211, 0.8); font-size: 0.9rem; margin-top: 0.5rem; }
+        .date-card .desc { color: var(--wood-pale); font-weight: 600; margin-top: 0.3rem; }
+        .hero-cta { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--wood-cream); color: var(--wood-dark); padding: 1rem 2.5rem; border-radius: 50px; font-weight: 700; font-size: 1.1rem; text-decoration: none; transition: all 0.3s; border: 2px solid var(--wood-cream); }
+        .hero-cta:hover { background: transparent; color: var(--wood-cream); transform: translateY(-2px); }
+        .floating-piece { position: absolute; font-size: 4rem; opacity: 0.15; animation: float 6s ease-in-out infinite; color: var(--wood-cream); }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(5deg); } }
+        section { padding: 5rem 2rem; max-width: 1200px; margin: 0 auto; }
+        .section-header { text-align: center; margin-bottom: 4rem; }
+        .section-header h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3rem); color: var(--wood-dark); margin-bottom: 1rem; }
+        .section-header p { color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .section-divider { width: 80px; height: 4px; background: linear-gradient(90deg, var(--wood-cream), var(--wood-light)); margin: 1rem auto; border-radius: 2px; }
+        .about-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .about-card { background: white; border-radius: 20px; padding: 2.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 1px solid rgba(139, 90, 43, 0.2); transition: transform 0.3s, box-shadow 0.3s; }
+        .about-card:hover { transform: translateY(-5px); box-shadow: 0 20px 60px rgba(0,0,0,0.12); }
+        .about-icon { width: 60px; height: 60px; background: linear-gradient(135deg, var(--wood-light), var(--wood-cream)); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1.5rem; color: white; }
+        .about-card h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 1rem; color: var(--wood-dark); }
+        .about-card p { color: var(--text-muted); line-height: 1.7; }
+        .rules-section { background: linear-gradient(135deg, var(--wood-dark) 0%, var(--wood-medium) 100%); position: relative; overflow: hidden; }
+        .rules-section .section-header h2, .rules-section .section-header p { color: var(--wood-pale); }
+        .rules-container { max-width: 1000px; margin: 0 auto; }
+        .rule-block { background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 165, 116, 0.2); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem; backdrop-filter: blur(10px); transition: all 0.3s; }
+        .rule-block:hover { border-color: var(--wood-cream); background: rgba(255,255,255,0.08); }
+        .rule-block h3 { color: var(--wood-cream); font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; }
+        .rule-block h3 .num { background: var(--wood-cream); color: var(--wood-dark); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; font-family: 'Inter', sans-serif; }
+        .rule-block p, .rule-block li { color: rgba(245, 230, 211, 0.9); line-height: 1.8; }
+        .rule-block ul { margin-left: 1.5rem; margin-top: 0.5rem; }
+        .rule-block li { margin-bottom: 0.5rem; }
+        .scoring-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .score-card { background: rgba(212, 165, 116, 0.15); border: 1px solid var(--wood-cream); border-radius: 12px; padding: 1.5rem; text-align: center; }
+        .score-card .points { font-size: 2.5rem; font-weight: 900; color: var(--wood-cream); font-family: 'Playfair Display', serif; }
+        .score-card .label { color: rgba(245, 230, 211, 0.8); font-size: 0.9rem; margin-top: 0.5rem; }
+        .teams-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
+        .team-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 1px solid rgba(139, 90, 43, 0.2); transition: transform 0.3s; }
+        .team-card:hover { transform: translateY(-5px); }
+        .team-header { background: linear-gradient(135deg, var(--wood-dark), var(--wood-medium)); padding: 1.5rem; color: white; position: relative; overflow: hidden; }
+        .team-header::before { content: '♟'; position: absolute; right: -10px; top: -10px; font-size: 5rem; opacity: 0.1; }
+        .team-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--wood-cream); }
+        .team-group { font-size: 0.85rem; color: rgba(245, 230, 211, 0.8); margin-top: 0.25rem; }
+        .team-body { padding: 1.5rem; }
+        .player { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--cream); border-radius: 12px; margin-bottom: 0.75rem; }
+        .player:last-child { margin-bottom: 0; }
+        .player-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--wood-light), var(--wood-cream)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 1.2rem; flex-shrink: 0; }
+        .player-info h4 { font-weight: 600; color: var(--text-dark); }
+        .player-info span { font-size: 0.85rem; color: var(--text-muted); }
+        .player-color { margin-left: auto; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--wood-dark); }
+        .player-color.white { background: white; }
+        .player-color.black { background: var(--wood-dark); }
+        .standings-section { background: var(--cream); }
+        .standings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; }
+        .standings-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 1px solid rgba(139, 90, 43, 0.2); }
+        .standings-header { background: linear-gradient(135deg, var(--wood-dark), var(--wood-medium)); padding: 1.5rem; color: white; }
+        .standings-header h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--wood-cream); }
+        .standings-table { width: 100%; border-collapse: collapse; }
+        .standings-table th { background: rgba(139, 90, 43, 0.1); padding: 1rem; text-align: left; font-weight: 600; color: var(--wood-dark); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+        .standings-table td { padding: 1rem; border-bottom: 1px solid rgba(139, 90, 43, 0.1); }
+        .standings-table tr:hover { background: rgba(212, 165, 116, 0.05); }
+        .standings-table .rank { font-weight: 900; color: var(--wood-cream); background: var(--wood-dark); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .standings-table .team-name-cell { font-weight: 600; color: var(--text-dark); }
+        .standings-table .points-cell { font-weight: 900; color: var(--wood-dark); font-size: 1.1rem; }
+        .standings-table .qualified { background: rgba(34, 197, 94, 0.1); }
+        .qualification-badge { display: inline-block; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .top-players-section { background: linear-gradient(135deg, var(--wood-dark) 0%, var(--wood-medium) 100%); }
+        .top-players-section .section-header h2, .top-players-section .section-header p { color: var(--wood-pale); }
+        .top-players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .top-player-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 165, 116, 0.2); border-radius: 16px; padding: 1.5rem; display: flex; align-items: center; gap: 1rem; transition: all 0.3s; }
+        .top-player-card:hover { background: rgba(255,255,255,0.08); border-color: var(--wood-cream); }
+        .top-player-rank { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: var(--wood-cream); min-width: 50px; text-align: center; }
+        .top-player-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--wood-light), var(--wood-cream)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 1.4rem; }
+        .top-player-info { flex: 1; }
+        .top-player-info h4 { color: var(--wood-pale); font-weight: 600; margin-bottom: 0.25rem; }
+        .top-player-info span { color: rgba(245, 230, 211, 0.7); font-size: 0.85rem; }
+        .top-player-stats { text-align: right; }
+        .top-player-stats .wins { font-size: 1.5rem; font-weight: 900; color: var(--wood-cream); font-family: 'Playfair Display', serif; }
+        .top-player-stats .label { font-size: 0.75rem; color: rgba(245, 230, 211, 0.7); text-transform: uppercase; }
+        .matches-section { background: var(--cream); }
+        .match-filters { display: flex; gap: 1rem; justify-content: center; margin-bottom: 3rem; flex-wrap: wrap; }
+        .filter-btn { padding: 0.75rem 1.5rem; border: 2px solid var(--wood-dark); background: transparent; color: var(--wood-dark); border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-family: 'Inter', sans-serif; }
+        .filter-btn:hover, .filter-btn.active { background: var(--wood-dark); color: var(--wood-cream); }
+        .matches-list { display: flex; flex-direction: column; gap: 1.5rem; }
+        .match-card { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 5px 30px rgba(0,0,0,0.06); border: 1px solid rgba(139, 90, 43, 0.15); transition: all 0.3s; }
+        .match-card:hover { box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem; }
+        .match-round { background: var(--wood-cream); color: var(--wood-dark); padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.85rem; font-weight: 700; }
+        .match-status { padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600; }
+        .match-status.upcoming { background: #dbeafe; color: #1e40af; }
+        .match-status.live { background: #fee2e2; color: #dc2626; animation: pulse 2s infinite; }
+        .match-status.finished { background: #d1fae5; color: #065f46; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .match-teams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 2rem; align-items: center; }
+        .match-team { text-align: center; }
+        .match-team-name { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--wood-dark); margin-bottom: 0.5rem; }
+        .match-team-players { font-size: 0.85rem; color: var(--text-muted); }
+        .match-vs { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; color: var(--wood-cream); }
+        .match-score { font-size: 2rem; font-weight: 900; color: var(--wood-dark); font-family: 'Playfair Display', serif; }
+        .match-details { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #eee; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+        .match-detail { text-align: center; }
+        .match-detail-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .match-detail-value { font-weight: 700; color: var(--wood-dark); margin-top: 0.25rem; }
+        .future-confrontations { margin-top: 1rem; padding: 1rem; background: rgba(212, 165, 116, 0.1); border-radius: 12px; border: 1px dashed var(--wood-cream); }
+        .future-confrontations h4 { font-size: 0.9rem; color: var(--wood-dark); margin-bottom: 0.75rem; text-align: center; font-weight: 600; }
+        .confrontation-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid rgba(139, 90, 43, 0.1); }
+        .confrontation-row:last-child { border-bottom: none; }
+        .confrontation-players { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
+        .confrontation-color { width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--wood-dark); }
+        .confrontation-color.white { background: white; }
+        .confrontation-color.black { background: var(--wood-dark); }
+        .confrontation-vs { color: var(--wood-cream); font-weight: 700; }
+        .form-section { background: linear-gradient(135deg, var(--wood-dark) 0%, var(--wood-medium) 100%); color: white; }
+        .form-section .section-header h2, .form-section .section-header p { color: var(--wood-pale); }
+        .form-container { max-width: 800px; margin: 0 auto; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 165, 116, 0.2); border-radius: 20px; padding: 3rem; backdrop-filter: blur(10px); text-align: center; }
+        .form-icon { font-size: 4rem; margin-bottom: 1.5rem; }
+        .form-container h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--wood-cream); margin-bottom: 1rem; }
+        .form-container p { color: rgba(245, 230, 211, 0.8); margin-bottom: 2rem; line-height: 1.7; }
+        .form-btn { display: inline-flex; align-items: center; gap: 0.75rem; background: var(--wood-cream); color: var(--wood-dark); padding: 1rem 2.5rem; border-radius: 50px; font-weight: 700; font-size: 1.1rem; text-decoration: none; transition: all 0.3s; border: 2px solid var(--wood-cream); }
+        .form-btn:hover { background: transparent; color: var(--wood-cream); transform: translateY(-2px); }
+        .info-section { background: white; border-radius: 20px; padding: 3rem; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 1px solid rgba(139, 90, 43, 0.2); margin-bottom: 3rem; }
+        .info-section h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--wood-dark); margin-bottom: 1.5rem; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .info-card { background: var(--cream); border-radius: 16px; padding: 1.5rem; border: 1px solid rgba(139, 90, 43, 0.15); }
+        .info-card h4 { color: var(--wood-dark); margin-bottom: 0.75rem; font-weight: 600; }
+        .info-card p, .info-card li { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; }
+        .info-card ul { margin-left: 1.2rem; }
+        .info-card li { margin-bottom: 0.4rem; }
+        .code-block { background: var(--wood-dark); color: var(--wood-pale); padding: 1rem; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.8rem; margin-top: 0.75rem; overflow-x: auto; }
+        footer { background: var(--wood-dark); color: rgba(245, 230, 211, 0.6); text-align: center; padding: 3rem 2rem; border-top: 3px solid var(--wood-cream); }
+        footer .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--wood-cream); margin-bottom: 1rem; }
+        @media (max-width: 768px) { .nav-links { display: none; } .hero-dates { flex-direction: column; align-items: center; } .match-teams { grid-template-columns: 1fr; gap: 1rem; } .match-vs { transform: rotate(90deg); } section { padding: 3rem 1rem; } .standings-grid { grid-template-columns: 1fr; } }
+        .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.6s, transform 0.6s; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+        .loading { text-align: center; padding: 3rem; color: var(--text-muted); }
+        .spinner { width: 40px; height: 40px; border: 3px solid rgba(139, 90, 43, 0.3); border-top-color: var(--wood-cream); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <nav>
+        <div class="nav-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Team Chess Tournament
+        </div>
+        <ul class="nav-links">
+            <li><a href="#about">Présentation</a></li>
+            <li><a href="#rules">Règles</a></li>
+            <li><a href="#teams">Équipes</a></li>
+            <li><a href="#standings">Classement</a></li>
+            <li><a href="#top-players">Top Joueurs</a></li>
+            <li><a href="#matches">Matchs</a></li>
+            <li><a href="#register">Inscription</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="floating-piece" style="top: 20%; left: 10%;">♔</div>
+        <div class="floating-piece" style="top: 60%; right: 15%; animation-delay: 1s;">♕</div>
+        <div class="floating-piece" style="bottom: 20%; left: 20%; animation-delay: 2s;">♖</div>
+        <div class="floating-piece" style="top: 30%; right: 25%; animation-delay: 3s;">♗</div>
+        <div class="hero-content">
+            <div class="hero-badge">Compétition Universitaire</div>
+            <h1>Team Chess <span>Tournament</span></h1>
+            <p class="hero-subtitle">Le premier tournoi d'échecs en binôme de l'université</p>
+            <div class="hero-dates">
+                <div class="date-card">
+                    <div class="day" id="group-day">Jeudi</div>
+                    <div class="label" id="group-date">--</div>
+                    <div class="desc">Phases de groupe</div>
+                </div>
+                <div class="date-card">
+                    <div class="day" id="final-day">Vendredi</div>
+                    <div class="label" id="final-date">--</div>
+                    <div class="desc">Phases finales</div>
+                </div>
+            </div>
+            <a href="#register" class="hero-cta">
+                S'inscrire maintenant
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </section>
+
+    <section id="about">
+        <div class="section-header fade-in">
+            <h2>Présentation du Tournoi</h2>
+            <div class="section-divider"></div>
+            <p>Découvrez le format innovant de compétition d'échecs en équipe</p>
+        </div>
+        <div class="about-grid">
+            <div class="about-card fade-in">
+                <div class="about-icon">👥</div>
+                <h3>Format Binôme</h3>
+                <p>Chaque équipe est composée de 2 joueurs qui s'affrontent simultanément contre une équipe adverse. La stratégie d'équipe est primordiale pour la victoire.</p>
+            </div>
+            <div class="about-card fade-in">
+                <div class="about-icon">⚔️</div>
+                <h3>Confrontation Stratégique</h3>
+                <p>Un joueur joue avec les Blancs et l'autre avec les Noirs. Le choix des couleurs avant le match est une décision tactique cruciale pour l'équipe.</p>
+            </div>
+            <div class="about-card fade-in">
+                <div class="about-icon">🏆</div>
+                <h3>Phases Finales</h3>
+                <p>Les meilleures équipes de chaque groupe se qualifient pour les phases finales du vendredi. Qui remportera le titre de champion ?</p>
+            </div>
+            <div class="about-card fade-in">
+                <div class="about-icon">🎯</div>
+                <h3>Système de Points</h3>
+                <p>3 points pour une victoire, 1 point chacun en cas de match nul. Chaque point compte pour la qualification aux phases finales.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="rules" class="rules-section">
+        <div class="section-header fade-in">
+            <h2>Règles du Tournoi</h2>
+            <div class="section-divider"></div>
+            <p>Comprendre le fonctionnement des matchs et le système de victoire</p>
+        </div>
+        <div class="rules-container">
+            <div class="rule-block fade-in">
+                <h3><span class="num">1</span> Composition des Équipes</h3>
+                <p>Chaque équipe est constituée de <strong>2 joueurs</strong>. Avant chaque match, l'équipe doit décider :</p>
+                <ul>
+                    <li>Quel joueur jouera avec les <strong>Blancs</strong></li>
+                    <li>Quel joueur jouera avec les <strong>Noirs</strong></li>
+                </ul>
+                <p>Ce choix doit être communiqué à l'organisation avant le début du match.</p>
+            </div>
+            <div class="rule-block fade-in">
+                <h3><span class="num">2</span> Déroulement d'un Match</h3>
+                <p>Deux parties simultanées sont jouées :</p>
+                <ul>
+                    <li><strong>Partie 1 :</strong> Joueur A (Blancs) vs Joueur X (Noirs)</li>
+                    <li><strong>Partie 2 :</strong> Joueur B (Noirs) vs Joueur Y (Blancs)</li>
+                </ul>
+                <p>Les résultats des deux parties déterminent l'issue du match.</p>
+            </div>
+            <div class="rule-block fade-in">
+                <h3><span class="num">3</span> Logique de Victoire</h3>
+                <p>Le résultat du match se calcule selon les règles suivantes :</p>
+                <ul>
+                    <li><strong>Victoire nette :</strong> Si les 2 membres d'une équipe gagnent leur partie → L'équipe gagne le match (3 pts)</li>
+                    <li><strong>Égalité 1-1 :</strong> Si un membre gagne et l'autre perd → Les 2 vainqueurs s'affrontent en départage. Le vainqueur du départage fait gagner son équipe (3 pts)</li>
+                    <li><strong>Double match nul :</strong> Si les 2 parties sont nulles → Les 2 vaincus s'affrontent en départage. Le vainqueur du départage fait gagner son équipe (3 pts)</li>
+                    <li><strong>Départage nul :</strong> Si le départage est aussi nul → Match considéré comme nul (1 pt chacun)</li>
+                </ul>
+            </div>
+            <div class="rule-block fade-in">
+                <h3><span class="num">4</span> Système de Points</h3>
+                <div class="scoring-grid">
+                    <div class="score-card"><div class="points">3 pts</div><div class="label">Victoire<br>(1.5 pts × 2)</div></div>
+                    <div class="score-card"><div class="points">1 pt</div><div class="label">Match Nul<br>(0.5 pts chacun)</div></div>
+                    <div class="score-card"><div class="points">0 pt</div><div class="label">Défaite</div></div>
+                </div>
+            </div>
+            <div class="rule-block fade-in">
+                <h3><span class="num">5</span> Phases de Compétition</h3>
+                <ul>
+                    <li><strong>Jeudi (Phases de groupe) :</strong> Les équipes sont réparties en groupes. Chaque équipe affronte les autres de son groupe.</li>
+                    <li><strong>Vendredi (Phases finales) :</strong> Les meilleures équipes de chaque groupe se qualifient et s'affrontent en élimination directe.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="teams">
+        <div class="section-header fade-in">
+            <h2>Équipes Inscrites</h2>
+            <div class="section-divider"></div>
+            <p>Les équipes participantes et leurs joueurs</p>
+        </div>
+        <div id="teams-container" class="teams-grid">
+            <div class="loading"><div class="spinner"></div><p>Chargement des équipes...</p></div>
+        </div>
+    </section>
+
+    <section id="standings" class="standings-section">
+        <div class="section-header fade-in">
+            <h2>Classement par Groupe</h2>
+            <div class="section-divider"></div>
+            <p>Les meilleures équipes se qualifient pour les phases finales</p>
+        </div>
+        <div id="standings-container" class="standings-grid">
+            <div class="loading"><div class="spinner"></div><p>Chargement des classements...</p></div>
+        </div>
+    </section>
+
+    <section id="top-players" class="top-players-section">
+        <div class="section-header fade-in">
+            <h2>Top Joueurs</h2>
+            <div class="section-divider"></div>
+            <p>Les joueurs avec le plus de victoires individuelles</p>
+        </div>
+        <div id="top-players-container" class="top-players-grid">
+            <div class="loading"><div class="spinner"></div><p>Chargement des statistiques...</p></div>
+        </div>
+    </section>
+
+    <section id="matches" class="matches-section">
+        <div class="section-header fade-in">
+            <h2>Matchs & Résultats</h2>
+            <div class="section-divider"></div>
+            <p>Suivez l'avancement du tournoi en direct</p>
+        </div>
+        <div class="match-filters fade-in">
+            <button class="filter-btn active" data-filter="all">Tous</button>
+            <button class="filter-btn" data-filter="upcoming">À venir</button>
+            <button class="filter-btn" data-filter="live">En cours</button>
+            <button class="filter-btn" data-filter="finished">Terminés</button>
+        </div>
+        <div id="matches-container" class="matches-list">
+            <div class="loading"><div class="spinner"></div><p>Chargement des matchs...</p></div>
+        </div>
+    </section>
+
+    <section id="data-info">
+        <div class="section-header fade-in">
+            <h2>Configuration des Données</h2>
+            <div class="section-divider"></div>
+            <p>Comment connecter les formulaires Google au site</p>
+        </div>
+        <div class="info-section fade-in">
+            <h3>📊 Structure des Google Sheets</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>1. Sheet ÉQUIPES (Inscriptions)</h4>
+                    <p>Formulaire d'inscription des équipes :</p>
+                    <ul>
+                        <li><strong>Colonne A :</strong> Horodatage</li>
+                        <li><strong>Colonne B :</strong> Nom de l'équipe</li>
+                        <li><strong>Colonne C :</strong> Joueur 1 (Nom complet)</li>
+                        <li><strong>Colonne D :</strong> Joueur 2 (Nom complet)</li>
+                        <li><strong>Colonne E :</strong> Groupe (A, B, C...)</li>
+                        <li><strong>Colonne F :</strong> Email de contact</li>
+                    </ul>
+                    <div class="code-block">https://docs.google.com/forms/d/e/[FORM_ID]/viewform</div>
+                </div>
+                <div class="info-card">
+                    <h4>2. Sheet MATCHS (Résultats)</h4>
+                    <p>Formulaire de saisie des résultats :</p>
+                    <ul>
+                        <li><strong>Colonne A :</strong> ID Match</li>
+                        <li><strong>Colonne B :</strong> Équipe 1</li>
+                        <li><strong>Colonne C :</strong> Équipe 2</li>
+                        <li><strong>Colonne D :</strong> Score Équipe 1</li>
+                        <li><strong>Colonne E :</strong> Score Équipe 2</li>
+                        <li><strong>Colonne F :</strong> Résultat Échiquier 1</li>
+                        <li><strong>Colonne G :</strong> Résultat Échiquier 2</li>
+                        <li><strong>Colonne H :</strong> Date (JJ/MM/AAAA)</li>
+                        <li><strong>Colonne I :</strong> Heure (HH:MM)</li>
+                        <li><strong>Colonne J :</strong> Groupe</li>
+                        <li><strong>Colonne K :</strong> Statut (upcoming/live/finished)</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>3. Sheet JOUEURS (Stats)</h4>
+                    <p>Statistiques individuelles :</p>
+                    <ul>
+                        <li><strong>Colonne A :</strong> Nom du joueur</li>
+                        <li><strong>Colonne B :</strong> Équipe</li>
+                        <li><strong>Colonne C :</strong> Victoires</li>
+                        <li><strong>Colonne D :</strong> Défaites</li>
+                        <li><strong>Colonne E :</strong> Matchs nuls</li>
+                        <li><strong>Colonne F :</strong> Points totaux</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>4. Sheet CONFRONTATIONS (À venir)</h4>
+                    <p>Détails des matchs futurs :</p>
+                    <ul>
+                        <li><strong>Colonne A :</strong> ID Match</li>
+                        <li><strong>Colonne B :</strong> Joueur A (Équipe 1, Blanc)</li>
+                        <li><strong>Colonne C :</strong> Joueur B (Équipe 1, Noir)</li>
+                        <li><strong>Colonne D :</strong> Joueur X (Équipe 2, Blanc)</li>
+                        <li><strong>Colonne E :</strong> Joueur Y (Équipe 2, Noir)</li>
+                        <li><strong>Colonne F :</strong> Temps de jeu (ex: 15min+10s)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="register" class="form-section">
+        <div class="section-header fade-in">
+            <h2>Inscription</h2>
+            <div class="section-divider"></div>
+            <p>Inscrivez votre équipe pour participer au tournoi</p>
+        </div>
+        <div class="form-container fade-in">
+            <div class="form-icon">📝</div>
+            <h3>Inscrivez votre équipe</h3>
+            <p>Remplissez le formulaire Google pour enregistrer votre équipe de 2 joueurs. Les informations seront automatiquement affichées sur cette page.</p>
+            <a href="#" id="form-link" class="form-btn" target="_blank">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
+                Accéder au formulaire
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-logo">♟ Team Chess Tournament</div>
+        <p>Compétition universitaire d'échecs en binôme</p>
+        <p style="margin-top: 0.5rem; font-size: 0.9rem;">Organisé par les étudiants • 2026</p>
+    </footer>
+
+    <script>
+        // ============================================
+        // CONFIGURATION - MODIFIEZ CES VALEURS
+        // ============================================
+        const CONFIG = {
+            sheets: {
+                teams: '1Og_zsUMiKlT7T_ReZlAy_AzNjUpKdtPuGn3P7ZXXrno',
+                matches: '1mPxmf5JwmYHBBQ-5RTTa83QFHkcrhO-iVIjhMfmC694',
+                players: '15imuleeFefR9XqeCr1_2eFeLayAGIKdjb1I4uWfVu3M',
+                confrontations: '1j0H7pvx9ivjEHZmk3NXCyStwTlq1IDeBLpy0gWwemXQ'
+            },
+            googleFormUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSfnbPdhNRl48sg-ZxBebyAOJQwrMI7nuR6DB5yz6v4oTIh7Iw/viewform',
+            tournamentDates: {
+                group: getNextDay(4),
+                final: getNextDay(5)
+            }
+        };
+
+        function getNextDay(targetDay) {
+            const today = new Date();
+            const diff = targetDay - today.getDay();
+            const daysUntil = diff <= 0 ? diff + 7 : diff;
+            const nextDate = new Date(today);
+            nextDate.setDate(today.getDate() + daysUntil);
+            return nextDate;
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+        }
+
+        function formatDateFull(dateStr) {
+            if (!dateStr) return '--';
+            const [day, month, year] = dateStr.split('/');
+            const date = new Date(year + '-' + month + '-' + day);
+            return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+        }
+
+        // ============================================
+        // DONNÉES D'EXEMPLE
+        // ============================================
+        const sampleTeams = [
+            { name: "Les Fous du Roi", group: "Groupe A", players: [
+                { name: "Alexandre Martin", color: "white", wins: 3, losses: 0, draws: 1 },
+                { name: "Sophie Bernard", color: "black", wins: 2, losses: 1, draws: 1 }
+            ], points: 7, played: 3, won: 2, drawn: 1, lost: 0, gf: 5, ga: 2 },
+            { name: "Échec et Mat", group: "Groupe A", players: [
+                { name: "Thomas Petit", color: "black", wins: 2, losses: 2, draws: 0 },
+                { name: "Emma Dubois", color: "white", wins: 1, losses: 2, draws: 1 }
+            ], points: 4, played: 3, won: 1, drawn: 1, lost: 1, gf: 3, ga: 3 },
+            { name: "Les Cavaliers", group: "Groupe A", players: [
+                { name: "Lucas Moreau", color: "white", wins: 1, losses: 2, draws: 1 },
+                { name: "Chloé Roux", color: "black", wins: 0, losses: 3, draws: 1 }
+            ], points: 1, played: 3, won: 0, drawn: 1, lost: 2, gf: 1, ga: 4 },
+            { name: "Tour de Force", group: "Groupe B", players: [
+                { name: "Hugo Leroy", color: "black", wins: 3, losses: 0, draws: 1 },
+                { name: "Léa Girard", color: "white", wins: 3, losses: 1, draws: 0 }
+            ], points: 9, played: 3, won: 3, drawn: 0, lost: 0, gf: 6, ga: 1 },
+            { name: "Les Pions Fous", group: "Groupe B", players: [
+                { name: "Nicolas Blanc", color: "white", wins: 2, losses: 1, draws: 1 },
+                { name: "Marie Noir", color: "black", wins: 1, losses: 2, draws: 1 }
+            ], points: 4, played: 3, won: 1, drawn: 1, lost: 1, gf: 3, ga: 4 },
+            { name: "Le Gambit", group: "Groupe B", players: [
+                { name: "Paul Roi", color: "black", wins: 0, losses: 3, draws: 1 },
+                { name: "Julie Dame", color: "white", wins: 1, losses: 2, draws: 1 }
+            ], points: 1, played: 3, won: 0, drawn: 1, lost: 2, gf: 2, ga: 5 }
+        ];
+
+        const sampleMatches = [
+            {
+                id: 1, round: "Groupe A - Journée 1", status: "finished",
+                team1: { name: "Les Fous du Roi", players: "A. Martin (B) & S. Bernard (N)" },
+                team2: { name: "Échec et Mat", players: "T. Petit (N) & E. Dubois (B)" },
+                score: "3 - 0", board1: "1 - 0", board2: "1 - 0",
+                date: "24/04/2026", time: "14:00", group: "Groupe A",
+                confrontations: [
+                    { p1: "Alexandre Martin", c1: "white", p2: "Thomas Petit", c2: "black", result: "1-0" },
+                    { p1: "Sophie Bernard", c1: "black", p2: "Emma Dubois", c2: "white", result: "1-0" }
+                ]
+            },
+            {
+                id: 2, round: "Groupe A - Journée 2", status: "finished",
+                team1: { name: "Les Fous du Roi", players: "A. Martin (B) & S. Bernard (N)" },
+                team2: { name: "Les Cavaliers", players: "L. Moreau (N) & C. Roux (B)" },
+                score: "1 - 1", board1: "½ - ½", board2: "½ - ½",
+                date: "24/04/2026", time: "15:30", group: "Groupe A",
+                confrontations: [
+                    { p1: "Alexandre Martin", c1: "white", p2: "Lucas Moreau", c2: "black", result: "½-½" },
+                    { p1: "Sophie Bernard", c1: "black", p2: "Chloé Roux", c2: "white", result: "½-½" }
+                ]
+            },
+            {
+                id: 3, round: "Groupe B - Journée 1", status: "finished",
+                team1: { name: "Tour de Force", players: "H. Leroy (N) & L. Girard (B)" },
+                team2: { name: "Les Pions Fous", players: "N. Blanc (B) & M. Noir (N)" },
+                score: "3 - 0", board1: "1 - 0", board2: "1 - 0",
+                date: "24/04/2026", time: "14:00", group: "Groupe B",
+                confrontations: [
+                    { p1: "Hugo Leroy", c1: "black", p2: "Nicolas Blanc", c2: "white", result: "1-0" },
+                    { p1: "Léa Girard", c1: "white", p2: "Marie Noir", c2: "black", result: "1-0" }
+                ]
+            },
+            {
+                id: 4, round: "Groupe A - Journée 3", status: "upcoming",
+                team1: { name: "Échec et Mat", players: "T. Petit & E. Dubois" },
+                team2: { name: "Les Cavaliers", players: "L. Moreau & C. Roux" },
+                score: "vs", board1: "-", board2: "-",
+                date: "24/04/2026", time: "17:00", group: "Groupe A",
+                confrontations: [
+                    { p1: "Thomas Petit", c1: "white", p2: "Lucas Moreau", c2: "black", result: "?" },
+                    { p1: "Emma Dubois", c1: "black", p2: "Chloé Roux", c2: "white", result: "?" }
+                ],
+                timeControl: "15 min + 10 sec"
+            },
+            {
+                id: 5, round: "Groupe B - Journée 2", status: "upcoming",
+                team1: { name: "Tour de Force", players: "H. Leroy & L. Girard" },
+                team2: { name: "Le Gambit", players: "P. Roi & J. Dame" },
+                score: "vs", board1: "-", board2: "-",
+                date: "24/04/2026", time: "15:30", group: "Groupe B",
+                confrontations: [
+                    { p1: "Hugo Leroy", c1: "white", p2: "Paul Roi", c2: "black", result: "?" },
+                    { p1: "Léa Girard", c1: "black", p2: "Julie Dame", c2: "white", result: "?" }
+                ],
+                timeControl: "15 min + 10 sec"
+            },
+            {
+                id: 6, round: "Groupe B - Journée 3", status: "upcoming",
+                team1: { name: "Les Pions Fous", players: "N. Blanc & M. Noir" },
+                team2: { name: "Le Gambit", players: "P. Roi & J. Dame" },
+                score: "vs", board1: "-", board2: "-",
+                date: "24/04/2026", time: "17:00", group: "Groupe B",
+                confrontations: [
+                    { p1: "Nicolas Blanc", c1: "black", p2: "Paul Roi", c2: "white", result: "?" },
+                    { p1: "Marie Noir", c1: "white", p2: "Julie Dame", c2: "black", result: "?" }
+                ],
+                timeControl: "15 min + 10 sec"
+            },
+            {
+                id: 7, round: "Demi-finale", status: "upcoming",
+                team1: { name: "À déterminer", players: "1er Groupe A" },
+                team2: { name: "À déterminer", players: "2ème Groupe B" },
+                score: "vs", board1: "-", board2: "-",
+                date: "25/04/2026", time: "14:00", group: "Finales",
+                confrontations: [],
+                timeControl: "25 min + 10 sec"
+            }
+        ];
+
+        // ============================================
+        // RÉCUPÉRATION GOOGLE SHEETS
+        // ============================================
+        async function fetchSheetData(sheetId, sheetName) {
+            try {
+                const url = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/gviz/tq?tqx=out:json&sheet=' + sheetName;
+                const response = await fetch(url);
+                const text = await response.text();
+                const json = JSON.parse(text.substring(47).slice(0, -2));
+                return json.table.rows;
+            } catch (error) {
+                console.warn('Erreur chargement sheet:', error);
+                return null;
+            }
+        }
+
+        async function fetchTeamsFromSheet() {
+            const rows = await fetchSheetData(CONFIG.sheets.teams, 'Réponses');
+            if (!rows) return sampleTeams;
+            const teams = [];
+            rows.forEach(row => {
+                const teamName = row.c[1] ? row.c[1].v : 'Équipe';
+                const player1 = row.c[2] ? row.c[2].v : 'Joueur 1';
+                const player2 = row.c[3] ? row.c[3].v : 'Joueur 2';
+                const group = row.c[4] ? row.c[4].v : 'Groupe A';
+                teams.push({
+                    name: teamName, group: group,
+                    players: [
+                        { name: player1, color: "white", wins: 0, losses: 0, draws: 0 },
+                        { name: player2, color: "black", wins: 0, losses: 0, draws: 0 }
+                    ],
+                    points: 0, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0
+                });
+            });
+            return teams.length > 0 ? teams : sampleTeams;
+        }
+
+        async function fetchMatchesFromSheet() {
+            const rows = await fetchSheetData(CONFIG.sheets.matches, 'Matchs');
+            if (!rows) return sampleMatches;
+            const matches = [];
+            rows.forEach(row => {
+                matches.push({
+                    id: row.c[0] ? row.c[0].v : 0,
+                    round: row.c[1] ? row.c[1].v : 'Match',
+                    team1: { name: row.c[2] ? row.c[2].v : 'Équipe 1', players: '' },
+                    team2: { name: row.c[3] ? row.c[3].v : 'Équipe 2', players: '' },
+                    score: (row.c[4] ? row.c[4].v : 0) + ' - ' + (row.c[5] ? row.c[5].v : 0),
+                    board1: row.c[6] ? row.c[6].v : '-',
+                    board2: row.c[7] ? row.c[7].v : '-',
+                    date: row.c[8] ? row.c[8].v : '--',
+                    time: row.c[9] ? row.c[9].v : '--',
+                    group: row.c[10] ? row.c[10].v : '',
+                    status: row.c[11] ? row.c[11].v : 'upcoming',
+                    confrontations: []
+                });
+            });
+            return matches.length > 0 ? matches : sampleMatches;
+        }
+
+        async function fetchPlayersFromSheet() {
+            const rows = await fetchSheetData(CONFIG.sheets.players, 'Stats');
+            if (!rows) return getAllPlayers(sampleTeams);
+            const players = [];
+            rows.forEach(row => {
+                players.push({
+                    name: row.c[0] ? row.c[0].v : 'Joueur',
+                    team: row.c[1] ? row.c[1].v : '',
+                    wins: row.c[2] ? parseInt(row.c[2].v) : 0,
+                    losses: row.c[3] ? parseInt(row.c[3].v) : 0,
+                    draws: row.c[4] ? parseInt(row.c[4].v) : 0,
+                    points: row.c[5] ? parseFloat(row.c[5].v) : 0
+                });
+            });
+            return players.length > 0 ? players : getAllPlayers(sampleTeams);
+        }
+
+        function getAllPlayers(teams) {
+            const players = [];
+            teams.forEach(team => {
+                team.players.forEach(p => {
+                    players.push({
+                        name: p.name, team: team.name,
+                        wins: p.wins, losses: p.losses, draws: p.draws,
+                        points: p.wins * 1 + p.draws * 0.5
+                    });
+                });
+            });
+            return players;
+        }
+
+        // ============================================
+        // RENDU DES ÉQUIPES
+        // ============================================
+        function renderTeams(teams) {
+            const container = document.getElementById('teams-container');
+            if (teams.length === 0) {
+                container.innerHTML = '<div class="loading"><p>Aucune équipe inscrite pour le moment.</p><p style="font-size: 0.85rem; margin-top: 0.5rem;">Soyez les premiers à vous inscrire !</p></div>';
+                return;
+            }
+            container.innerHTML = teams.map(team => `
+                <div class="team-card fade-in">
+                    <div class="team-header">
+                        <div class="team-name">${team.name}</div>
+                        <div class="team-group">${team.group}</div>
+                    </div>
+                    <div class="team-body">
+                        ${team.players.map((player, idx) => `
+                            <div class="player">
+                                <div class="player-avatar">${player.name.charAt(0)}</div>
+                                <div class="player-info">
+                                    <h4>${player.name}</h4>
+                                    <span>Joueur ${idx + 1}</span>
+                                </div>
+                                <div class="player-color ${player.color}" title="${player.color === 'white' ? 'Blancs' : 'Noirs'}"></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+            observeElements();
+        }
+
+        // ============================================
+        // RENDU DU CLASSEMENT
+        // ============================================
+        function renderStandings(teams) {
+            const container = document.getElementById('standings-container');
+            const groups = {};
+            teams.forEach(team => {
+                if (!groups[team.group]) groups[team.group] = [];
+                groups[team.group].push(team);
+            });
+
+            Object.keys(groups).forEach(group => {
+                groups[group].sort((a, b) => {
+                    if (b.points !== a.points) return b.points - a.points;
+                    if ((b.gf - b.ga) !== (a.gf - a.ga)) return (b.gf - b.ga) - (a.gf - a.ga);
+                    return b.gf - a.gf;
+                });
+            });
+
+            container.innerHTML = Object.keys(groups).map(group => `
+                <div class="standings-card fade-in">
+                    <div class="standings-header">
+                        <h3>${group}</h3>
+                    </div>
+                    <table class="standings-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Équipe</th>
+                                <th>J</th>
+                                <th>V</th>
+                                <th>N</th>
+                                <th>D</th>
+                                <th>BP</th>
+                                <th>BC</th>
+                                <th>Diff</th>
+                                <th>Pts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${groups[group].map((team, idx) => `
+                                <tr class="${idx < 2 ? 'qualified' : ''}">
+                                    <td><div class="rank">${idx + 1}</div></td>
+                                    <td class="team-name-cell">
+                                        ${team.name}
+                                        ${idx < 2 ? '<br><span class="qualification-badge">Qualifié</span>' : ''}
+                                    </td>
+                                    <td>${team.played}</td>
+                                    <td>${team.won}</td>
+                                    <td>${team.drawn}</td>
+                                    <td>${team.lost}</td>
+                                    <td>${team.gf}</td>
+                                    <td>${team.ga}</td>
+                                    <td>${team.gf - team.ga > 0 ? '+' : ''}${team.gf - team.ga}</td>
+                                    <td class="points-cell">${team.points}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `).join('');
+            observeElements();
+        }
+
+        // ============================================
+        // RENDU TOP JOUEURS
+        // ============================================
+        function renderTopPlayers(players) {
+            const container = document.getElementById('top-players-container');
+            players.sort((a, b) => b.wins - a.wins);
+            const topPlayers = players.slice(0, 10);
+
+            container.innerHTML = topPlayers.map((player, idx) => `
+                <div class="top-player-card fade-in">
+                    <div class="top-player-rank">#${idx + 1}</div>
+                    <div class="top-player-avatar">${player.name.charAt(0)}</div>
+                    <div class="top-player-info">
+                        <h4>${player.name}</h4>
+                        <span>${player.team}</span>
+                    </div>
+                    <div class="top-player-stats">
+                        <div class="wins">${player.wins}</div>
+                        <div class="label">Victoires</div>
+                    </div>
+                </div>
+            `).join('');
+            observeElements();
+        }
+
+        // ============================================
+        // RENDU DES MATCHS
+        // ============================================
+        function renderMatches(matches, filter) {
+            const container = document.getElementById('matches-container');
+            const filtered = filter === 'all' ? matches : matches.filter(m => m.status === filter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="loading"><p>Aucun match ' + (filter === 'all' ? '' : 'de ce type') + ' pour le moment.</p></div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(match => `
+                <div class="match-card fade-in" data-status="${match.status}">
+                    <div class="match-header">
+                        <span class="match-round">${match.round}</span>
+                        <span class="match-status ${match.status}">
+                            ${match.status === 'upcoming' ? 'À venir' : match.status === 'live' ? '🔴 En direct' : 'Terminé'}
+                        </span>
+                    </div>
+                    <div class="match-teams">
+                        <div class="match-team">
+                            <div class="match-team-name">${match.team1.name}</div>
+                            <div class="match-team-players">${match.team1.players}</div>
+                        </div>
+                        <div class="match-vs">
+                            ${match.status === 'finished' ? '<div class="match-score">' + match.score + '</div>' : 'VS'}
+                        </div>
+                        <div class="match-team">
+                            <div class="match-team-name">${match.team2.name}</div>
+                            <div class="match-team-players">${match.team2.players}</div>
+                        </div>
+                    </div>
+                    <div class="match-details">
+                        <div class="match-detail">
+                            <div class="match-detail-label">Date</div>
+                            <div class="match-detail-value">${formatDateFull(match.date)}</div>
+                        </div>
+                        <div class="match-detail">
+                            <div class="match-detail-label">Heure</div>
+                            <div class="match-detail-value">${match.time}</div>
+                        </div>
+                        <div class="match-detail">
+                            <div class="match-detail-label">Échiquier 1</div>
+                            <div class="match-detail-value">${match.board1}</div>
+                        </div>
+                        <div class="match-detail">
+                            <div class="match-detail-label">Échiquier 2</div>
+                            <div class="match-detail-value">${match.board2}</div>
+                        </div>
+                        ${match.timeControl ? `
+                        <div class="match-detail">
+                            <div class="match-detail-label">Cadence</div>
+                            <div class="match-detail-value">${match.timeControl}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    ${match.confrontations && match.confrontations.length > 0 ? `
+                    <div class="future-confrontations">
+                        <h4>🎯 Confrontations prévues</h4>
+                        ${match.confrontations.map(c => `
+                            <div class="confrontation-row">
+                                <div class="confrontation-players">
+                                    <div class="confrontation-color ${c.c1}"></div>
+                                    <span>${c.p1}</span>
+                                </div>
+                                <span class="confrontation-vs">VS</span>
+                                <div class="confrontation-players">
+                                    <span>${c.p2}</span>
+                                    <div class="confrontation-color ${c.c2}"></div>
+                                </div>
+                                <span style="font-weight: 700; color: var(--wood-dark); min-width: 50px; text-align: center;">${c.result}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+            observeElements();
+        }
+
+        // ============================================
+        // FILTRES ET ANIMATIONS
+        // ============================================
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderMatches(sampleMatches, btn.dataset.filter);
+            });
+        });
+
+        function observeElements() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('visible');
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // ============================================
+        // INITIALISATION
+        // ============================================
+        async function init() {
+            document.getElementById('group-date').textContent = formatDate(CONFIG.tournamentDates.group);
+            document.getElementById('final-date').textContent = formatDate(CONFIG.tournamentDates.final);
+            document.getElementById('form-link').href = CONFIG.googleFormUrl;
+
+            const teams = await fetchTeamsFromSheet();
+            renderTeams(teams);
+            renderStandings(teams);
+
+            const players = await fetchPlayersFromSheet();
+            renderTopPlayers(players);
+
+            const matches = await fetchMatchesFromSheet();
+            renderMatches(matches, 'all');
+
+            observeElements();
+        }
+
+        init();
+
+        // Actualisation auto toutes les 5 minutes
+        setInterval(async () => {
+            const teams = await fetchTeamsFromSheet();
+            renderTeams(teams);
+            renderStandings(teams);
+            const players = await fetchPlayersFromSheet();
+            renderTopPlayers(players);
+        }, 300000);
+    </script>
+</body>
+</html>
